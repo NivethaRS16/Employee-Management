@@ -1,15 +1,22 @@
 package com.example.demo.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.model.Employee;
@@ -43,12 +50,24 @@ public class EmployeeController {
 	}
 	
 	@PostMapping("/saveEmployee")
-	public String saveEmployee(@ModelAttribute("employee") Employee employee) {
-		// save employee to database
-		employeeService.saveEmployee(employee);
+	public String saveEmployee(Model model,@Valid @ModelAttribute("employee") Employee employee,BindingResult bindResult) {
+		if(bindResult.hasErrors())
+    	{
+			return "new_employee";
+    	}
+		else
+    	{
+        try {
+        	employeeService.saveEmployee(employee);
+        }
+        catch (Exception e) {
+			 model.addAttribute("errorMessage", e.getMessage());
+			 return "new_employee";
+		}	
 		return "redirect:/";
-	}
-	
+    	}
+	}	
+    
 	@GetMapping("/showFormForUpdate/{id}")
 	public String showFormForUpdate(@PathVariable ( value = "id") long id, Model model) {
 		
@@ -91,5 +110,30 @@ public class EmployeeController {
 		return "index";
 	}
 	
+	   @RequestMapping("/search")
+	    public String search(Model model) {
+		   Employee employee = new Employee();
+	        model.addAttribute("employee", employee);
+	        return "search_employee";
+	    }
+	    
+	    @RequestMapping("/searchEmployee")
+	    public String searchEmployee(@RequestParam(name = "id", defaultValue = "1") int id,Model model) {
+	    	Employee employee=employeeService.getEmployeeById(id);
+	        List<Employee> employees =new ArrayList<>();
+	        Optional<Employee> employeeExists = Optional.ofNullable(employee);
+	        if(employeeExists.isPresent()) {
+	        	employees.add(employee);
+	        	model.addAttribute("listEmployees", employees);
+	        	return "index";
+	        }
+	        else {
+	        	Employee employee1 = new Employee();
+	            model.addAttribute("employee", employee1);
+	        	model.addAttribute("errorMessage","Employee does not exist !! ");
+	        	return "search_employee";
+	        }
+	    }
+	    
 
 }

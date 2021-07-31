@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.model.Employee;
 import com.example.demo.repository.EmployeeRepository;
-
-import org.springframework.data.domain.Sort;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -26,20 +26,35 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public void saveEmployee(Employee employee) {
-		this.employeeRepository.save(employee);
+	public void saveEmployee(Employee employee) throws Exception {
+		
+		try {
+			employeeRepository.save(employee);
+	    	}
+	    	 catch(DataIntegrityViolationException e) {
+	    		 throw new Exception("Employee with same email already exists!!");
+	    	 }
+	    	catch(Exception e) {
+	    		throw new Exception("An unexpected error occured!! Please try again");
+	    	}
 	}
-
+	
 	@Override
 	public Employee getEmployeeById(long id) {
-		Optional<Employee> optional = employeeRepository.findById(id);
-		Employee employee = null;
-		if (optional.isPresent()) {
-			employee = optional.get();
-		} else {
-			throw new RuntimeException(" Employee not found for id :: " + id);
+		/*
+		 * Optional<Employee> optional = employeeRepository.findById(id); Employee
+		 * employee = null; if (optional.isPresent()) { employee = optional.get(); }
+		 * else { return null; }
+		 */
+		if(employeeRepository.findById(id).isPresent()) {
+			return employeeRepository.findById(id).get();
 		}
-		return employee;
+		else {
+			return null;
+		}
+//			throw new RuntimeException(" Employee not found for id :: " + id);
+//		}
+//		return employee;
 	}
 
 	@Override

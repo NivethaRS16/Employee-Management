@@ -8,7 +8,7 @@ import com.example.demo.model.Employee;
 
 public interface EmployeeService {
 	List<Employee> getAllEmployees();
-	void saveEmployee(Employee employee);
+	void saveEmployee(Employee employee) throws Exception;
 	Employee getEmployeeById(long id);
 	void deleteEmployeeById(long id);
 	Page<Employee> findPaginated(int pageNo, int pageSize, String sortField, String sortDirection);

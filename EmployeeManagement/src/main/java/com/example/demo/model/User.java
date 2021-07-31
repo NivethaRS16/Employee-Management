@@ -14,6 +14,16 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name =  "user", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
@@ -24,13 +34,18 @@ public class User {
 	private Long id;
 	
 	@Column(name = "first_name")
+	@Size(min = 3, max = 40, message = "First name should be between 3 - 40 characters" )
 	private String firstName;
 	
 	@Column(name = "last_name")
+	@Size(min = 3, max = 40, message = "Last name should be between 3 - 40 characters" )
 	private String lastName;
 	
+	@NotBlank(message = "Enter your email id")
+	@Email(message = "Enter a proper email id")
 	private String email;
 	
+	@NotEmpty(message = "Please enter your password.")
 	private String password;
 	
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
